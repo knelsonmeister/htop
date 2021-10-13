@@ -269,6 +269,7 @@ fi
 if test "$my_htop_platform" = linux && test "x$enable_static" = xyes; then
    AC_CHECK_LIB([systemd], [sd_bus_open_system])
 fi
+AC_SEARCH_LIBS([sd_bus_message_read], [systemd])
 
 # ----------------------------------------------------------------------
 

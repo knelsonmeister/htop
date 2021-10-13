@@ -87,6 +87,20 @@ typedef struct LinuxServiceList_ {
    // ZramStats zram;
 } LinuxServiceList;
 
+typedef struct UnitInfo {
+  const char *machine;
+  const char *id;
+  const char *description;
+  const char *load_state;
+  const char *active_state;
+  const char *sub_state;
+  const char *following;
+  const char *unit_path;
+  uint32_t job_id;
+  const char *job_type;
+  const char *job_path;
+} UnitInfo;
+
 #ifndef PROCDIR
 #define PROCDIR "/proc"
 #endif

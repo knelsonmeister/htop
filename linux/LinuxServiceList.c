@@ -47,6 +47,7 @@ in the source distribution for its full text.
 #include "XUtils.h"
 #include "linux/LinuxService.h"
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
+#include <systemd/sd-bus.h>
 
 #if defined(MAJOR_IN_MKDEV)
 #include <sys/mkdev.h>
@@ -1326,16 +1327,84 @@ static bool LinuxServiceList_recurseProcTree(LinuxServiceList* this, openat_arg_
    const struct dirent* entry;
    const Settings* settings = sl->settings;
 
-   int pid = 1;
+   // int pid = 1;
+   // bool preExisting = false;
+   // Service* srv = ServiceList_getService(sl, pid, &preExisting, LinuxService_new);
+   // srv->percent_cpu = rand() % 100;
+   // srv->percent_mem = rand() %100;
+   // srv->user = "root";
+   // if (!preExisting)
+   // {
+   //    ServiceList_add(sl, srv);
+   // }
+
+   // Use the systemd dbus API to get the list of running services
+   sd_bus_error sdBusError = SD_BUS_ERROR_NULL;
+   sd_bus_message *message = NULL;
+   sd_bus *sdBus = NULL;
+   int errorCode = 0;
+   UnitInfo u_;
+   UnitInfo *u = &u_;
+   int count = 0;
    bool preExisting = false;
-   Service* srv = ServiceList_getService(sl, pid, &preExisting, LinuxService_new);
-   srv->percent_cpu = rand() % 100;
-   srv->percent_mem = rand() %100;
-   srv->user = "root";
-   if (!preExisting)
-   {
-      ServiceList_add(sl, srv);
+
+   errorCode = sd_bus_default_system(&sdBus);
+   if (errorCode < 0) {
+      return false;
    }
+
+   // busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager ListUnitsByPatterns asas 1 running 1 "*service"
+   errorCode = sd_bus_call_method(
+                  sdBus,
+                  "org.freedesktop.systemd1",
+                  "/org/freedesktop/systemd1",
+                  "org.freedesktop.systemd1.Manager",
+                  "ListUnitsByPatterns",
+                  &sdBusError,
+                  &message,
+                  "asas",
+                  1,
+                  "running",
+                  1,
+                  "*service");
+   if (errorCode < 0) {
+      return false;
+   }
+
+   errorCode = sd_bus_message_enter_container(message, 'a', "(ssssssouso)");
+   if (errorCode < 0) {
+      return false;
+   }
+
+   for (;;) {
+      errorCode = sd_bus_message_read(message, "(ssssssouso)", &u->id, &u->description, &u->load_state, &u->active_state, &u->sub_state, &u->following, &u->unit_path, &u->job_id, &u->job_type, &u->job_path);
+      if (errorCode < 0) {
+         return false;
+      }
+      else if (errorCode == 0) {
+         break;
+      }
+      else {
+         count++;
+         Service* srv = ServiceList_getService(sl, count, &preExisting, LinuxService_new);
+         srv->user = u->id;
+         srv->percent_cpu = rand() % 100;
+         srv->percent_mem = rand() % 100;
+         if (!preExisting)
+         {
+            ServiceList_add(sl, srv);
+         }
+      }
+   }
+
+   errorCode = sd_bus_message_exit_container(message);
+   if (errorCode < 0) {
+      return false;
+   }
+
+   sd_bus_error_free(&sdBusError);
+   sd_bus_message_unref(message);
+   sd_bus_unref(sdBus);
 
 // #ifdef HAVE_OPENAT
 //    int dirFd = openat(parentFd, dirname, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
