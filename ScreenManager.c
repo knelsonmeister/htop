@@ -90,6 +90,7 @@ void ScreenManager_resize(ScreenManager* this) {
 
 static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTimeout, bool* redraw, bool* rescan, bool* timedOut) {
    ProcessList* pl = this->header->pl;
+   ServiceList* sl = this->header->sl;
 
    Platform_gettime_realtime(&pl->realtime, &pl->realtimeMs);
    double newTime = ((double)pl->realtime.tv_sec * 10) + ((double)pl->realtime.tv_usec / 100000);
@@ -105,6 +106,7 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
       *oldTime = newTime;
       // scan processes first - some header values are calculated there
       ProcessList_scan(pl, this->state->pauseProcessUpdate);
+      ServiceList_scan(sl, this->state->pauseProcessUpdate);
       // always update header, especially to avoid gaps in graph meters
       Header_updateData(this->header);
       if (!this->state->pauseProcessUpdate && (*sortTimeout == 0 || this->settings->treeView)) {
@@ -114,7 +116,8 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
       *redraw = true;
    }
    if (*redraw) {
-      ProcessList_rebuildPanel(pl);
+      // ProcessList_rebuildPanel(pl);
+      ServiceList_rebuildPanel(sl);
       Header_draw(this->header);
    }
    *rescan = false;

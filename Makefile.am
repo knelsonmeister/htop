@@ -74,6 +74,8 @@ myhtopsources = \
 	ProcessLocksScreen.c \
 	RichString.c \
 	ScreenManager.c \
+	Service.c \
+	ServiceList.c \
 	Settings.c \
 	SignalsPanel.c \
 	SwapMeter.c \
@@ -135,6 +137,8 @@ myhtopheaders = \
 	ProvideCurses.h \
 	RichString.h \
 	ScreenManager.h \
+	Service.h \
+	ServiceList.h \
 	Settings.h \
 	SignalsPanel.h \
 	SwapMeter.h \
@@ -159,6 +163,8 @@ linux_platform_headers = \
 	linux/LibSensors.h \
 	linux/LinuxProcess.h \
 	linux/LinuxProcessList.h \
+	linux/LinuxService.h \
+	linux/LinuxServiceList.h \
 	linux/Platform.h \
 	linux/PressureStallMeter.h \
 	linux/ProcessField.h \
@@ -179,6 +185,8 @@ linux_platform_sources = \
 	linux/LibSensors.c \
 	linux/LinuxProcess.c \
 	linux/LinuxProcessList.c \
+	linux/LinuxService.c \
+	linux/LinuxServiceList.c \
 	linux/Platform.c \
 	linux/PressureStallMeter.c \
 	linux/SELinuxMeter.c \

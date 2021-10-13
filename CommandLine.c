@@ -35,6 +35,7 @@ in the source distribution for its full text.
 #include "ProcessList.h"
 #include "ProvideCurses.h"
 #include "ScreenManager.h"
+#include "ServiceList.h"
 #include "Settings.h"
 #include "UsersTable.h"
 #include "XUtils.h"
@@ -299,11 +300,13 @@ int CommandLine_run(const char* name, int argc, char** argv) {
       dc = Hashtable_new(0, true);
 
    ProcessList* pl = ProcessList_new(ut, dm, dc, flags.pidMatchList, flags.userId);
+   ServiceList* sl = ServiceList_new(ut, dm, dc, flags.pidMatchList, flags.userId);
 
    Settings* settings = Settings_new(pl->activeCPUs, dc);
    pl->settings = settings;
+   sl->settings = settings;
 
-   Header* header = Header_new(pl, settings, 2);
+   Header* header = Header_new(pl, sl, settings, 2);
 
    Header_populateFromSettings(header);
 
@@ -334,6 +337,7 @@ int CommandLine_run(const char* name, int argc, char** argv) {
 
    MainPanel* panel = MainPanel_new();
    ProcessList_setPanel(pl, (Panel*) panel);
+   ServiceList_setPanel(sl, (Panel*) panel);
 
    MainPanel_updateTreeFunctions(panel, settings->treeView);
 
