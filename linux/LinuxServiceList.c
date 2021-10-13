@@ -1329,7 +1329,13 @@ static bool LinuxServiceList_recurseProcTree(LinuxServiceList* this, openat_arg_
    int pid = 1;
    bool preExisting = false;
    Service* srv = ServiceList_getService(sl, pid, &preExisting, LinuxService_new);
-   ServiceList_add(sl, srv);
+   srv->percent_cpu = rand() % 100;
+   srv->percent_mem = rand() %100;
+   srv->user = "root";
+   if (!preExisting)
+   {
+      ServiceList_add(sl, srv);
+   }
 
 // #ifdef HAVE_OPENAT
 //    int dirFd = openat(parentFd, dirname, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
