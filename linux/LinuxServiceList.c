@@ -1433,16 +1433,16 @@ static bool LinuxServiceList_recurseProcTree(LinuxServiceList* this, openat_arg_
          }
 
          Service* srv = ServiceList_getService(sl, pid, &preExisting, LinuxService_new);
-         srv->user = u->id;
+         // srv->user = u->id;
          srv->percent_cpu = rand() % 100;
          srv->percent_mem = rand() % 100;
-         Service_updateCmdline(srv, u->id, 0, strlen(u->id));
-         // srv->cmdline = u->id;
+         // Service_updateCmdline(srv, u->id, 0, strlen(u->id));
+         srv->cmdline = u->id;
          srv->isKernelThread = false;
          srv->isUserlandThread = true;
-         srv->tty_name = u->id;
-         srv->procComm = u->id;
-         srv->procExe = u->id;
+         // srv->tty_name = u->id;
+         // srv->procComm = u->id;
+         // srv->procExe = u->id;
          srv->updated = true;
          srv->show = true;
          srv->state = 'R';

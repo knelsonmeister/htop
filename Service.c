@@ -635,7 +635,7 @@ void Service_writeCommand(const Service* this, int attr, int baseAttr, RichStrin
          }
       }
 
-      // RichString_appendWide(str, attr, cmdline);
+      RichString_appendWide(str, attr, cmdline);
 
       if (this->settings->highlightBaseName) {
          RichString_setAttrn(str, baseAttr, strStart, len);
@@ -644,7 +644,7 @@ void Service_writeCommand(const Service* this, int attr, int baseAttr, RichStrin
       return;
    }
 
-   // RichString_appendWide(str, attr, this->mergedCommand.str);
+   RichString_appendWide(str, attr, this->mergedCommand.str);
 
    for (size_t i = 0, hlCount = CLAMP(mc->highlightCount, 0, ARRAYSIZE(mc->highlights)); i < hlCount; i++) {
       const ServiceCmdlineHighlight* hl = &mc->highlights[i];
