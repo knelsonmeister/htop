@@ -1341,12 +1341,14 @@ static bool LinuxServiceList_recurseProcTree(LinuxServiceList* this, openat_arg_
    // Use the systemd dbus API to get the list of running services
    sd_bus_error sdBusError = SD_BUS_ERROR_NULL;
    sd_bus_message *message = NULL;
+   sd_bus_message *message2 = NULL;
    sd_bus *sdBus = NULL;
    int errorCode = 0;
    UnitInfo u_;
    UnitInfo *u = &u_;
    int count = 0;
    bool preExisting = false;
+   int pid = 0;
 
    errorCode = sd_bus_default_system(&sdBus);
    if (errorCode < 0) {
@@ -1386,10 +1388,64 @@ static bool LinuxServiceList_recurseProcTree(LinuxServiceList* this, openat_arg_
       }
       else {
          count++;
-         Service* srv = ServiceList_getService(sl, count, &preExisting, LinuxService_new);
+
+         // TODO: Get all info about a service (uses u->unit_path):
+         // busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1/unit/autofs_2eservice org.freedesktop.DBus.Properties GetAll s ""
+         // TODO: Could use the above call to get PID, CPU?, MEM, Nice, Time?, etc.
+         // Simpler API to get PID (uses u->id):
+         // busctl call org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager GetUnitProcesses s autofs.service
+         errorCode = sd_bus_call_method(
+                        sdBus,
+                        "org.freedesktop.systemd1",
+                        "/org/freedesktop/systemd1",
+                        "org.freedesktop.systemd1.Manager",
+                        "GetUnitProcesses",
+                        &sdBusError,
+                        &message2,
+                        "s",
+                        u->id);
+         if (errorCode < 0) {
+            printf("Hello0\n");
+            return false;
+         }
+
+         errorCode = sd_bus_message_enter_container(message2, 'a', "(sus)");
+         if (errorCode < 0) {
+            printf("Hello1\n");
+            return false;
+         }
+
+         for (;;) {
+            errorCode = sd_bus_message_read(message2, "(sus)", NULL, &pid, NULL);
+            if (errorCode < 0) {
+               printf("Hello2\n");
+               return false;
+            }
+            else if (errorCode == 0) {
+               break;
+            }
+         }
+
+         errorCode = sd_bus_message_exit_container(message2);
+         if (errorCode < 0) {
+            printf("Hello3\n");
+            return false;
+         }
+
+         Service* srv = ServiceList_getService(sl, pid, &preExisting, LinuxService_new);
          srv->user = u->id;
          srv->percent_cpu = rand() % 100;
          srv->percent_mem = rand() % 100;
+         Service_updateCmdline(srv, u->id, 0, strlen(u->id));
+         // srv->cmdline = u->id;
+         srv->isKernelThread = false;
+         srv->isUserlandThread = true;
+         srv->tty_name = u->id;
+         srv->procComm = u->id;
+         srv->procExe = u->id;
+         srv->updated = true;
+         srv->show = true;
+         srv->state = 'R';
          if (!preExisting)
          {
             ServiceList_add(sl, srv);

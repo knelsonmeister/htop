@@ -13,7 +13,7 @@ in the source distribution for its full text.
 #include <sys/types.h>
 
 #include "Object.h"
-#include "ProcessField.h"
+#include "ServiceField.h"
 #include "RichString.h"
 
 
@@ -23,42 +23,41 @@ in the source distribution for its full text.
 #define DEFAULT_HIGHLIGHT_SECS 5
 
 typedef enum ServiceField_ {
-   // NULL_PROCESSFIELD = 0,
-   // PID = 1,
-   // COMM = 2,
-   // STATE = 3,
-   // PPID = 4,
-   // PGRP = 5,
-   // SESSION = 6,
-   // TTY = 7,
-   // TPGID = 8,
-   // MINFLT = 10,
-   // MAJFLT = 12,
-   // PRIORITY = 18,
-   // NICE = 19,
-   // STARTTIME = 21,
-   // PROCESSOR = 38,
-   // M_VIRT = 39,
-   // M_RESIDENT = 40,
-   // ST_UID = 46,
-   // PERCENT_CPU = 47,
-   // PERCENT_MEM = 48,
-   // USER = 49,
-   // TIME = 50,
-   // NLWP = 51,
-   // TGID = 52,
-   // PERCENT_NORM_CPU = 53,
-   // ELAPSED = 54,
-   // PROC_COMM = 124,
-   // PROC_EXE = 125,
-   // CWD = 126,
+   Z0 = 0,
+   Z1 = 1,
+   Z2 = 2,
+   Z3 = 3,
+   Z4 = 4,
+   Z5 = 5,
+   Z6 = 6,
+   Z7 = 7,
+   Z8 = 8,
+   Z10 = 10,
+   Z12 = 12,
+   Z18 = 18,
+   Z19 = 19,
+   Z21 = 21,
+   Z38 = 38,
+   Z39 = 39,
+   Z40 = 40,
+   Z46 = 46,
+   Z47 = 47,
+   Z48 = 48,
+   Z49 = 49,
+   Z50 = 50,
+   Z51 = 51,
+   Z52 = 52,
+   Z53 = 53,
+   Z54 = 54,
+   Z124 = 124,
+   Z125 = 125,
+   Z126 = 126,
 
    // /* Platform specific fields, defined in ${platform}/ServiceField.h */
-   // PLATFORM_PROCESS_FIELDS
+   PLATFORM_SERVICE_FIELDS
 
    // /* Do not add new fields after this entry (dynamic entries follow) */
-   // LAST_PROCESSFIELD
-   LAST_SERVICEFIELD = 255
+   LAST_SERVICEFIELD
 } ServiceField;
 
 struct Settings_;
